@@ -1,5 +1,0 @@
-/mnt/d/back-up/downloads/folder/porterting/chunky/20250423173444-027440-JjXlx9.mp4: 11.64mb -> 73 frames in 471.80 seconds
-/mnt/d/back-up/downloads/folder/porterting/chunky/20250423173310-943536-jKwSl2.mp4: 13.82mb -> 126 frames in 475.52 seconds
-/mnt/d/back-up/downloads/folder/porterting/chunky/20250423173750-937344-8LawlQ.mp4: 16.76mb -> 143 frames in 509.34 seconds
-/mnt/d/back-up/downloads/folder/porterting/chunky/20250423174301-544949-d7fbs4.mp4: 22.25mb -> 306 frames in 585.05 seconds
-/mnt/d/back-up/downloads/folder/porterting/chunky/20250423173310-943536-rtLgK4.mp4: 53.47mb -> 222 frames in 670.17 seconds
