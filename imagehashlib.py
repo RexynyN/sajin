@@ -250,7 +250,9 @@ def average_hash(image, hash_size=8, mean=numpy.mean):
 
 	# find average pixel value; 'pixels' is an array of the pixel values, ranging from 0 (black) to 255 (white)
 	pixels = numpy.asarray(image)
+	print(pixels.shape)
 	avg = mean(pixels)
+	print(avg)
 
 	# create string of bits
 	diff = pixels > avg
@@ -705,10 +707,12 @@ def crop_resistant_hash(
 
 if __name__ == "__main__": 
 	import numpy as np 
-	img = Image.open("adrian-botica-3KeX-H-0G5c-unsplash.jpg")
+	img = Image.open("data/adrian-botica-3KeX-H-0G5c-unsplash.jpg")
 
 	# print(img)
 
 	print(np.array(img).shape)
+
+	print(average_hash(img))
 
 
