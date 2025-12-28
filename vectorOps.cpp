@@ -87,26 +87,26 @@ Vector3D readImageVector(const std::string path) {
 }
 
 
-int setShowcase() {
-    std::set<std::string> unique_cars = {"Volvo", "BMW", "Ford", "BMW", "Mazda"};
-    unique_cars.insert("Tesla");
-    unique_cars.insert("VW");
+// int setShowcase() {
+//     std::set<std::string> unique_cars = {"Volvo", "BMW", "Ford", "BMW", "Mazda"};
+//     unique_cars.insert("Tesla");
+//     unique_cars.insert("VW");
 
-    std::cout << "Unique cars in sorted order:" << std::endl;
-    for (const std::string& car : unique_cars) {
-        std::cout << car << std::endl;
-    }
+//     std::cout << "Unique cars in sorted order:" << std::endl;
+//     for (const std::string& car : unique_cars) {
+//         std::cout << car << std::endl;
+//     }
 
-    if (unique_cars.count("Ford")) {
-        std::cout << "\nFord is in the set." << std::endl;
-    }
+//     if (unique_cars.count("Ford")) {
+//         std::cout << "\nFord is in the set." << std::endl;
+//     }
 
-    unique_cars.erase("Volvo");
+//     unique_cars.erase("Volvo");
 
-    std::cout << "\nAfter removing Volvo, size is: " << unique_cars.size() << std::endl;
+//     std::cout << "\nAfter removing Volvo, size is: " << unique_cars.size() << std::endl;
     
-    return 0;
-}
+//     return 0;
+// }
 
 
 // mean()
@@ -150,26 +150,17 @@ double meanVector3D(const Vector3D& vec) {
 
 // median()
 double medianVector1D(const Vector1D& flatVec) {
-    std::sort(flatVec.begin(), flatVec.end());  
+    Vector1D sorted = flatVec;
+    std::sort(sorted.begin(), sorted.end());  
 
-    size_t len = flatVec.size(); 
-    if (flatVec.size() % 2 != 0) { // Odd number of items
-        return flatVec[floor(len / 2)]; 
+    size_t len = sorted.size(); 
+    if (sorted.size() % 2 != 0) { // Odd number of items
+        return sorted[floor(len / 2)]; 
     }
 
     size_t midpoint = (size_t) floor(len / 2); // Mean of the two central values if even
-    return (flatVec[midpoint] + flatVec[midpoint - 1]);
+    return (sorted[midpoint] + sorted[midpoint - 1]);
 }
-
-
-double medianVector2D(const Vector2D& vec) {
-    return medianVector1D(flattenVector2D(vec));
-}
-
-double medianVector3D(const Vector3D& vec) {
-    return medianVector1D(flattenVector3D(vec));
-}
-
 
 // flatten()
 Vector1D flattenVector2D(const Vector2D& vec) {
@@ -199,6 +190,16 @@ Vector1D flattenVector3D(const Vector3D& vec) {
 
     return flattened; 
 }
+
+
+
+// double medianVector2D(const Vector2D& vec) {
+//     return medianVector1D(flattenVector2D(vec));
+// }
+
+// double medianVector3D(const Vector3D& vec) {
+//     return medianVector1D(flattenVector3D(vec));
+// }
 
 
 // log2()

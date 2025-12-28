@@ -8,7 +8,7 @@
 
 #include "vectorOps.hpp"
 
-std::string averageHash(const cv::Mat& image, int hashSize=8, std::string method) {
+std::string averageHash(const cv::Mat& image, int hashSize=8, std::string method="mean") {
     cv::Mat resizeImage; 
     cv::resize(image, resizeImage, cv::Size(hashSize, hashSize), 0.0, 0.0, cv::INTER_LANCZOS4);
 
@@ -24,9 +24,11 @@ std::string averageHash(const cv::Mat& image, int hashSize=8, std::string method
     int height = grayscale.rows;
     int width = grayscale.cols;
     int channels = grayscale.channels();
-
     std::cout << "Height: " << height << ", Width: " << width << ", Channels: " << channels << std::endl;
 
+    std::cout << "Height: " << image.rows << ", Width: " << image.cols << ", Channels: " << image.channels() << std::endl;
+
+    return "Suck it, nerd";
 }
 
 
@@ -47,7 +49,7 @@ int main(int argc, char* argv[]){
     // cv::Mat image = readImageMat(argv[1]);
     // Vector3D imagemVector = matToVector3D(image);
 
-    cv::Mat image = readImageMat("0a.jpg");
+    cv::Mat image = readImageMat("data/0a.jpg");
     averageHash(image);
 
 

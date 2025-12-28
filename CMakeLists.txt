@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(saijin)
+project(sajin)
 
 find_package(OpenCV REQUIRED)
 
-add_executable(saijin imageShow.cpp)
+add_executable(sajin sajin.cpp vectorOps.cpp)
 
-target_link_libraries(saijin ${OpenCV_LIBS})
+target_link_libraries(sajin ${OpenCV_LIBS})
