@@ -248,15 +248,18 @@ def average_hash(image, hash_size=8, mean=numpy.mean):
 	# reduce size and complexity, then convert to grayscale
 	image = image.convert('L').resize((hash_size, hash_size), ANTIALIAS)
 
+	image.save("pringles.jpg")
 	# find average pixel value; 'pixels' is an array of the pixel values, ranging from 0 (black) to 255 (white)
 	pixels = numpy.asarray(image)
 	print(pixels.shape)
+	print(pixels)
 	avg = mean(pixels)
 	print(avg)
 
 	# create string of bits
 	diff = pixels > avg
 	# make a hash
+	print(diff)
 	return ImageHash(diff)
 
 
@@ -707,7 +710,7 @@ def crop_resistant_hash(
 
 if __name__ == "__main__": 
 	import numpy as np 
-	img = Image.open("data/adrian-botica-3KeX-H-0G5c-unsplash.jpg")
+	img = Image.open("data/0a.jpg")
 
 	# print(img)
 

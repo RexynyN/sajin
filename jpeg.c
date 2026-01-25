@@ -34,8 +34,7 @@ Image* read_jpeg(const char *filename) {
 
     /* Set parameters for decompression */
     cinfo.out_color_space = JCS_RGB; /* Request RGB output color space */
-    cinfo.dct_method = JDCT_ISLOW; /* Use the slow but accurate method */
-
+    // cinfo.dct_method = JDCT_ISLOW; /* Use the slow but accurate method */
 
     jpeg_start_decompress(&cinfo);
 
@@ -63,8 +62,11 @@ Image* read_jpeg(const char *filename) {
     }
 
     /* Read scanlines */
+    // Explicação 1 
     while (cinfo.output_scanline < cinfo.output_height) {
-        row_pointer[0] = &(img->data[cinfo.output_scanline * img->width * img->channels]);
+        // Aloca o ponteiro do buffer para a localização da memória do struct
+        // Dai ele vai ler a próxima linha da imagem e já vai direto para a struct
+        row_pointer[0] = &(img->data[cinfo.output_scanline * img->width * img->channels]); // &(struct->data) == mudando o ponteiro para a struct
         jpeg_read_scanlines(&cinfo, row_pointer, 1);
     }
 
@@ -92,7 +94,11 @@ int main(int argc, char *argv[]) {
         printf("Channels: %d\n", image->channels);
 
         /* Example of accessing a pixel at (x, y) */
+        // Explicação 2
         int x = 1080, y = 1080;
+
+        // Faz um slice do array, começando pelo pixel que se quer ler 
+        // eg: data[pixel_loc:] em python (que desgraçado)
         unsigned char *pixel = &(image->data[(y * image->width + x) * image->channels]);
         printf("Pixel at (%d, %d): R=%u, G=%u, B=%u\n", x, y, pixel[0], pixel[1], pixel[2]);
 

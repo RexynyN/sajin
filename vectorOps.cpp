@@ -66,6 +66,66 @@ cv::Mat vector3DToMat(const Vector3D& vec) {
     return img;
 }
 
+
+Vector2D matGSToVector2D(const cv::Mat& inputRaw) {
+    if (inputRaw.empty()) 
+        return {};
+
+    cv::Mat img;
+    // Tratamento de segurança: Se vier colorida, converte para cinza automaticamente
+    if (inputRaw.channels() == 3) {
+        cv::cvtColor(inputRaw, img, cv::COLOR_BGR2GRAY);
+    } else if (inputRaw.channels() == 4) {
+        cv::cvtColor(inputRaw, img, cv::COLOR_BGRA2GRAY);
+    } else {
+        img = inputRaw; // Já é 1 canal, apenas copia o header (shallow copy)
+    }
+
+    int rows = img.rows;
+    int cols = img.cols;
+
+    Vector2D vec(rows, std::vector<uint8_t>(cols));
+    for (int i = 0; i < rows; ++i) {
+        // Ponteiro para o início da linha na Mat
+        const uint8_t* rowPtr = img.ptr<uint8_t>(i);
+        
+        // Ponteiro para o início da linha no Vector
+        // vec[i].data() retorna o ponteiro para o array interno do vector
+        uint8_t* vecPtr = vec[i].data(); 
+
+        // OTIMIZAÇÃO: Copia a linha inteira de memória de uma vez.
+        // Isso é muito mais rápido que um loop "for (int j...)"
+        std::copy(rowPtr, rowPtr + cols, vecPtr);
+    }
+
+    return vec;
+}
+
+cv::Mat vector2DToMatGS(const Vector2D& vec) {
+    if (vec.empty() || vec[0].empty()) return cv::Mat();
+
+    int rows = vec.size();
+    int cols = vec[0].size();
+
+    // CV_8UC1 = 8-bit Unsigned, 1 Channel
+    cv::Mat img(rows, cols, CV_8UC1);
+    for (int i = 0; i < rows; ++i) {
+        // Validação de segurança para vetores irregulares (jagged arrays)
+        if (vec[i].size() != cols) {
+            std::cerr << "Erro: Linha " << i << " tem tamanho diferente." << std::endl;
+            continue; 
+        }
+
+        const uint8_t* vecPtr = vec[i].data();
+        uint8_t* rowPtr = img.ptr<uint8_t>(i);
+
+        // Copia a linha inteira de volta para a Mat
+        std::copy(vecPtr, vecPtr + cols, rowPtr);
+    }
+
+    return img;
+}
+
 cv::Mat readImageMat(const std::string path) {
     cv::Mat image = cv::imread(path, cv::COLOR_BGR2RGB);
     if (image.empty()) {
@@ -85,6 +145,115 @@ Vector3D readImageVector(const std::string path) {
 
     return matToVector3D(image);
 }
+
+
+// Função auxiliar para converter 0-15 em caractere Hex
+char nibbleToHex(uint8_t nibble) {
+    return (nibble < 10) ? ('0' + nibble) : ('a' + (nibble - 10));
+}
+
+std::string binaryMatToHex(const cv::Mat& binaryImg) {
+    if (binaryImg.empty()) return "";
+
+    // 1. Validar e garantir que é uma matriz contínua para iteração rápida
+    // Se não for contínua, fazemos um clone para garantir
+    cv::Mat flat = binaryImg.isContinuous() ? binaryImg : binaryImg.clone();
+    
+    // Total de bits disponíveis
+    int totalBits = flat.total(); // rows * cols
+    
+    // 2. Calcular alinhamento
+    // Em Python: ceil(len / 4). Precisamos agrupar de 4 em 4 bits.
+    // Se tivermos 6 bits (ex: 11 1111), precisamos adicionar 2 zeros à esquerda (0011 1111)
+    // para que a matemática de grupos de 4 funcione corretamente.
+    int remainder = totalBits % 4;
+    int padding = (remainder == 0) ? 0 : (4 - remainder);
+
+    std::string hexString;
+    hexString.reserve((totalBits + padding) / 4);
+
+    uint8_t currentNibble = 0;
+    int bitsProcessed = 0;
+
+    // 3. Adicionar Padding (Zeros virtuais à esquerda)
+    // Isso simula o comportamento do int(string, 2) do Python que não se importa com zeros à esquerda
+    for (int i = 0; i < padding; ++i) {
+        currentNibble = (currentNibble << 1) | 0;
+        bitsProcessed++;
+        // Nota: Como padding < 4, nunca vamos completar um nibble aqui dentro
+        // a menos que o padding fosse 4 (o que a lógica acima impede, seria 0)
+    }
+
+    // 4. Iterar pelos pixels da imagem
+    const uint8_t* data = flat.ptr<uint8_t>(0);
+    for (int i = 0; i < totalBits; ++i) {
+        // Normaliza para 0 ou 1 (caso a imagem tenha 255)
+        uint8_t bit = (data[i] > 0) ? 1 : 0;
+
+        // Shift Left e adiciona o bit (Operação: acumulador * 2 + bit)
+        currentNibble = (currentNibble << 1) | bit;
+        bitsProcessed++;
+
+        // Se completamos 4 bits, temos um dígito Hex
+        if (bitsProcessed == 4) {
+            hexString += nibbleToHex(currentNibble);
+            currentNibble = 0;
+            bitsProcessed = 0;
+        }
+    }
+
+    return hexString;
+}
+
+char nibbleVecToHex(uint8_t nibble) {
+    static const char* hexLookup = "0123456789abcdef";
+    return hexLookup[nibble & 0x0F];
+}
+
+// Funciona para vector<uint8_t>, vector<int>, etc.
+std::string vector1DToHex(const Vector1D& binaryVec) {
+    if (binaryVec.empty()) return "";
+
+    size_t totalBits = binaryVec.size();
+    
+    // 1. Calcular quantos zeros virtuais precisamos adicionar à esquerda
+    // Exemplo: 5 bits. 5 % 4 = 1 sobra. Precisamos de (4-1) = 3 zeros de padding.
+    // Se 8 bits. 8 % 4 = 0 sobra. Padding = 0.
+    size_t remainder = totalBits % 4;
+    size_t padding = (remainder == 0) ? 0 : (4 - remainder);
+
+    std::string hexString;
+    // Reserva memória para evitar realocações (Total de nibbles)
+    hexString.reserve((totalBits + padding) / 4);
+
+    uint8_t currentNibble = 0;
+    int bitsProcessed = 0;
+
+    // 2. Processar Padding (Zeros à esquerda)
+    for (size_t i = 0; i < padding; ++i) {
+        currentNibble = (currentNibble << 1) | 0;
+        bitsProcessed++;
+    }
+
+    // 3. Processar o Vetor Real
+    for (const auto& val : binaryVec) {
+        // Normaliza para 0 ou 1
+        uint8_t bit = (val > 0) ? 1 : 0;
+
+        currentNibble = (currentNibble << 1) | bit;
+        bitsProcessed++;
+
+        // A cada 4 bits, despeja um caractere Hex
+        if (bitsProcessed == 4) {
+            hexString += nibbleVecToHex(currentNibble);
+            currentNibble = 0;
+            bitsProcessed = 0;
+        }
+    }
+
+    return hexString;
+}
+
 
 
 // int setShowcase() {

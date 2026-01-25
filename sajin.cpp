@@ -3,31 +3,60 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include <string>
+#include <functional>
 #include <iostream>
+#include <stdexcept> 
 #include <vector>
 
 #include "vectorOps.hpp"
 
-std::string averageHash(const cv::Mat& image, int hashSize=8, std::string method="mean") {
-    cv::Mat resizeImage; 
-    cv::resize(image, resizeImage, cv::Size(hashSize, hashSize), 0.0, 0.0, cv::INTER_LANCZOS4);
-
-
+std::string averageHash(const cv::Mat& image, int hashSize=8, std::function<double(Vector2D)> meanFunc=meanVector2D) {
+    if(hashSize < 2) 
+        throw std::invalid_argument("The hash size must be >= 2");
 
     cv::Mat grayscale; 
+    cv::cvtColor(image, grayscale, cv::COLOR_RGB2GRAY);
 
-    cv::cvtColor(resizeImage, grayscale, cv::COLOR_RGB2GRAY);
+    cv::Mat resizeImage; 
+    cv::resize(grayscale, resizeImage, cv::Size(hashSize, hashSize), 0.0, 0.0, cv::INTER_LANCZOS4);
 
-
-
-    
     int height = grayscale.rows;
     int width = grayscale.cols;
     int channels = grayscale.channels();
     std::cout << "Height: " << height << ", Width: " << width << ", Channels: " << channels << std::endl;
 
-    std::cout << "Height: " << image.rows << ", Width: " << image.cols << ", Channels: " << image.channels() << std::endl;
+    std::cout << "Height: " << resizeImage.rows << ", Width: " << resizeImage.cols << ", Channels: " << resizeImage.channels() << std::endl;
 
+
+    cv::imshow("Pringles", resizeImage);
+    int a = cv::waitKey(20);
+
+    Vector2D pixels = matGSToVector2D(resizeImage);
+    for (size_t i = 0; i < hashSize; i++) {
+        std::cout << "[";  
+        for (size_t j = 0; j < hashSize; j++) {
+            std::cout << (int)(pixels[i][j]) << ","; 
+        }
+        std::cout << "]" << std::endl;  
+    }
+    
+    double meanFuncReturn = meanFunc(pixels); // Average of pixels in the resized image
+
+    std::vector<std::vector<bool>> diff (hashSize, std::vector<bool>(hashSize)); 
+    std::cout << "[";  
+    // diff = pixels > avg
+    for (size_t i = 0; i < hashSize; i++) {
+        std::cout << "[";  
+        for (size_t j = 0; j < hashSize; j++) {
+            diff[i][j] = pixels[i][j] > meanFuncReturn;
+            std::cout << diff[i][j] << ","; 
+        }
+        std::cout << "]" << std::endl;  
+    }
+    std::cout << "]";  
+
+    std::string hex = vector1DToHex(flattenVector2D(diff));
+    std::cout << hex << endl; 
     return "Suck it, nerd";
 }
 

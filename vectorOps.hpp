@@ -14,12 +14,13 @@ using Vector1D = std::vector<uint8_t>;
 Vector3D matToVector3D(const cv::Mat& img);
 cv::Mat vector3DToMat(const Vector3D& vec);
 
+Vector2D matGSToVector2D(const cv::Mat& inputRaw);
+cv::Mat vector3DToMat(const Vector3D& vec);
+
+
 // I/O functions
 cv::Mat readImageMat(const std::string path);
 Vector3D readImageVector(const std::string path);
-
-// Showcase
-int setShowcase();
 
 // Statistical functions
 double meanVector1D(const Vector1D& vec);
@@ -42,5 +43,10 @@ Vector3D fullVector3D(size_t rows, size_t cols, size_t channels, uint8_t fillVal
 Vector1D zeroesVector1D(size_t columns);
 Vector2D zeroesVector2D(size_t rows, size_t cols);
 Vector3D zeroesVector3D(size_t rows, size_t cols, size_t channels);
+
+
+std::string binaryMatToHex(const cv::Mat& binaryImg);
+std::string vector1DToHex(const Vector1D& binaryVec);
+
 
 #endif // VECTOROPS_HPP
