@@ -65,9 +65,10 @@ void read_png_file(const char* filename) {
     // 7. Read the image data
     png_read_image(png, row_pointers);
 
-    // 8. Process the pixel data (example: print first pixel)
-    png_byte* row = row_pointers[0];
-    png_byte* ptr = &(row[0 * 4]); // Assuming 4 channels (RGBA) after transforms
+    // y (height)
+    png_byte* row = row_pointers[300]; 
+    // x (width)
+    png_byte* ptr = &(row[400 * 4]); // Assuming 4 channels (RGBA) after transforms
     printf("Pixel at [0, 0] has RGBA values: %d - %d - %d - %d\n", ptr[0], ptr[1], ptr[2], ptr[3]);
 
     // 9. Clean up
@@ -79,8 +80,13 @@ void read_png_file(const char* filename) {
     png_destroy_read_struct(&png, &info, NULL);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <jpeg_file>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
     // Compile with: gcc -std=c99 main.c -lpng
-    read_png_file("test.png");
+    // gcc png.c -lpng -o outer && ./outer dado.png 
+    read_png_file(argv[1]);
     return 0;
 }

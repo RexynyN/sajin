@@ -36,6 +36,7 @@ Image* read_jpeg(const char *filename) {
     cinfo.out_color_space = JCS_RGB; /* Request RGB output color space */
     cinfo.dct_method = JDCT_ISLOW; /* Use the slow but accurate method */
 
+
     jpeg_start_decompress(&cinfo);
 
     /* Allocate memory for the image data structure and pixel buffer */
@@ -83,13 +84,15 @@ int main(int argc, char *argv[]) {
 
     Image *image = read_jpeg(argv[1]);
 
+    // gcc jpeg.c -ljpeg -o outer && ./outer land.jpg
+
     if (image != NULL) {
         printf("Successfully read image: %s\n", argv[1]);
         printf("Dimensions: %d x %d pixels\n", image->width, image->height);
         printf("Channels: %d\n", image->channels);
 
         /* Example of accessing a pixel at (x, y) */
-        int x = 10, y = 20;
+        int x = 1080, y = 1080;
         unsigned char *pixel = &(image->data[(y * image->width + x) * image->channels]);
         printf("Pixel at (%d, %d): R=%u, G=%u, B=%u\n", x, y, pixel[0], pixel[1], pixel[2]);
 
